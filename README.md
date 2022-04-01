@@ -2,9 +2,13 @@
 
 ### 代码仅供学习 严禁任何商业用途
 
-#### 项目API来自 [项目地址](https://github.com/WeiYuanStudio/AutoWeiBan) 因为这个程序无法刷最新的课程 获取token相对麻烦，所以自己基于大佬的项目做了些改动。
+#### 项目 API 来自 [项目地址](https://github.com/WeiYuanStudio/AutoWeiBan) 因为这个程序无法刷最新的课程 获取token相对麻烦，所以自己基于大佬的项目做了些改动。
 
 ------
+
+## 📅2022-04-01可用
+
+- 一些微小的更新
 
 #### 更新日志
 

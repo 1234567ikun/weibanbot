@@ -4,9 +4,10 @@ import webbrowser
 def run():
     wb = WeibanAPI.WeibanAPI()
     a = wb.qrLogin()
-    print('{:=^45}'.format('安全微课逃课助手'))
+    print('{:=^45}'.format('安全微课逃课助手v2.0'))
     print("程序仅供学习，不得用作商业用途")
     print('多学一些安全知识也不是没有用\n')
+    print('考试功能未做，可以看GitHub上面的更新时间')
     print("5s后跳出来的链接用微信扫描，登录完成之后输入小写‘n’开始")
     time.sleep(6)
     print('登录连接:', a)

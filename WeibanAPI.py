@@ -31,9 +31,10 @@ class WeibanAPI():
             return image
         except requests.exceptions.SSLError:
             print('无法连接服务器,请检查网络')
+            time.sleep(8)
     def freashLogin(self):
         barCodeCacheUserId=self.barCodeCacheUserId
-        print(barCodeCacheUserId)
+        # print(barCodeCacheUserId)
         param = {
             'barCodeCacheUserId': barCodeCacheUserId
         }
@@ -43,6 +44,7 @@ class WeibanAPI():
         self.token = re.json()['data']["token"]
         self.userName = re.json()['data']["userName"]
         self.tenantCode=re.json()['data']["tenantCode"]
+        self.preUserProjectId=re.json()['data']['preUserProjectId']
     def getInfo(self):
         param = {
             'userId': self.userId,
@@ -51,25 +53,34 @@ class WeibanAPI():
 
         r = requests.post(url=getuserInfo, data=param)
         info = r.json()['data']
+        # print(info)
         print('{:=^15}\n姓名：{}\n学院：{}\n专业：{}'.format("学生信息",info['realName'], info['orgName'], info['specialtyName']))
+
 
     def getTask(self):
         param = {
             'userId': self.userId,
-            'tenantCode': self.tenantCode
+            'tenantCode': self.tenantCode,
+            "token":self.token
         }
+        url=getTask+"?"+str(int(time.time()))
 
-        re = requests.post(url=getTask, data=param)
+        re = requests.post(url=url, data=param)
+        # print(re)
         response = re.json()
+        # print(response)
         if response['code'] == '0':
             # print(response['data'])
             self.projectID = response['data']['userProjectId']
     def getProgress(self):
         param = {
-            'userProjectId': self.projectID,
-            'tenantCode': self.tenantCode
+            'userProjectId': self.preUserProjectId,
+            'tenantCode': self.tenantCode,
+            "token":self.token,
+            "userId":self.userId
         }
         re = requests.post(url=getProgressURL, data=param)
+        # print(re)
         progress = re.json()['data']
         print('{:*^15}'.format('学习进度'))
         print('课程总数：' + str(progress['requiredNum']))
@@ -79,10 +90,13 @@ class WeibanAPI():
     def getCourse(self):
         param = {
             'userProjectId': self.projectID,
+            "userId":self.userId,
             'chooseType': 3,
             'tenantCode': self.tenantCode,
+            "token":self.token
         }
         self.course = requests.post(getCourseURL, data=param)
+        # print(self.course)
     def finshiall(self, __ua_headers=None):
         for i in self.course.json()['data']:
             print('\n----章节码：' + i['categoryCode'] + '章节内容：' + i['categoryName'])
