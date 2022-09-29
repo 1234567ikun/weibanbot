@@ -25,8 +25,6 @@ def run():
     print(info[0],info[1],info[2])
     data = {"token": info[0], "userId": info[1],
             "tenantCode": info[2]}
-
-    # data={"token":"6dd975fe-cb2a-489f-b551-b4c4b6a6da4b","userId":"3d18e748-6ad9-47e2-bb47-2f33d1c9987f","tenantCode":"65000003"}
     userId = data['userId']
     # print(wb.userId)
     token = data['token']

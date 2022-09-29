@@ -5,10 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a0f5a631-c0f3-49d9-bd0e-b2c86b586c55" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/unittest/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WeibanAPI.py" beforeDir="false" afterPath="$PROJECT_DIR$/WeibanAPI.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/安全微课逃课助手V3.0.exe" beforeDir="false" afterPath="$PROJECT_DIR$/dist/安全微课逃课助手V3.0.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -147,7 +148,7 @@
       <updated>1662197373937</updated>
       <workItem from="1662197381971" duration="941000" />
       <workItem from="1662519754166" duration="4000" />
-      <workItem from="1664374597985" duration="21522000" />
+      <workItem from="1664374597985" duration="22448000" />
     </task>
     <servers />
   </component>
