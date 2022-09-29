@@ -5,7 +5,7 @@ block_cipher = None
 
 
 a = Analysis(['main.py'],
-             pathex=[],
+             pathex=['C:\\Users\\10634\\Documents\\weibanbot'],
              binaries=[],
              datas=[],
              hiddenimports=[],

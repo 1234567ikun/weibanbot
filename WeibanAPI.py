@@ -14,18 +14,27 @@ getCourseURL = 'https://weiban.mycourse.cn/pharos/usercourse/listCategory.do'  #
 getCourselisURL = 'https://weiban.mycourse.cn/pharos/usercourse/listCourse.do'  # 获取课程详细信息
 doStudyURL = 'https://weiban.mycourse.cn/pharos/usercourse/study.do'  # 发送开始练习
 finishURL = 'https://weiban.mycourse.cn/pharos/usercourse/finish.do'  # 发送完成请求
+getCourseUrls='https://weiban.mycourse.cn/pharos/usercourse/getCourseUrl.do'
 __ua_headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36', 'Cookie': ''}
 cookie = http.cookiejar.CookieJar()
 class WeibanAPI():
 
-    def __init__(self):
-        pass
+    def __init__(self,token,userId,tenantCode):
+        self.header={
+                "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36",
+                f"x-token": token,
+                # 'cookie': 'SERVERID=3e9e86f31a75ec1ee6c732efcaf93765|1664377858|1664377106'
+}
+        self.userId=userId
+        self.tenantCode=tenantCode,
+        self.token=token
     def getRandomtime(self):
         delayTime=random.randint(10,20)
         return delayTime
     def qrLogin(self):
         try:
             re=requests.get(getQRCodeURL)
+            print(re)
             image = re.json()["data"]["imagePath"]
             self.barCodeCacheUserId = re.json()["data"]["barCodeCacheUserId"]
             return image
@@ -50,10 +59,10 @@ class WeibanAPI():
             'userId': self.userId,
             'tenantCode': self.tenantCode
         }
-
-        r = requests.post(url=getuserInfo, data=param)
+        r = requests.post(url=getuserInfo+f"?timestamp={int(time.time())}", data=param,headers=self.header)
+        print(r)
         info = r.json()['data']
-        # print(info)
+
         print('{:=^15}\n姓名：{}\n学院：{}\n专业：{}'.format("学生信息",info['realName'], info['orgName'], info['specialtyName']))
 
 
@@ -65,13 +74,15 @@ class WeibanAPI():
         }
         url=getTask+"?"+str(int(time.time()))
 
-        re = requests.post(url=url, data=param)
+        re = requests.post(url=url+f"?timestamp={int(time.time())}", data=param,headers=self.header)
         # print(re)
         response = re.json()
         # print(response)
         if response['code'] == '0':
             # print(response['data'])
-            self.projectID = response['data']['userProjectId']
+            self.preUserProjectId = response['data']['userProjectId']
+            self.projectID=self.preUserProjectId
+            print(self.preUserProjectId)
     def getProgress(self):
         param = {
             'userProjectId': self.preUserProjectId,
@@ -79,7 +90,7 @@ class WeibanAPI():
             "token":self.token,
             "userId":self.userId
         }
-        re = requests.post(url=getProgressURL, data=param)
+        re = requests.post(url=getProgressURL+f"?timestamp={int(time.time())}", data=param,headers=self.header)
         # print(re)
         progress = re.json()['data']
         print('{:*^15}'.format('学习进度'))
@@ -95,7 +106,7 @@ class WeibanAPI():
             'tenantCode': self.tenantCode,
             "token":self.token
         }
-        self.course = requests.post(getCourseURL, data=param)
+        self.course = requests.post(getCourseURL+f"?timestamp={int(time.time())}", data=param,headers=self.header)
         # print(self.course)
     def finshiall(self, __ua_headers=None):
         for i in self.course.json()['data']:
@@ -111,8 +122,9 @@ class WeibanAPI():
                 'token': self.token
             }
 
-            req = requests.post(url=getCourselisURL, data=param)
+            req = requests.post(url=getCourselisURL+f"?timestamp={int(time.time())}", data=param,headers=self.header)
             for j in req.json()['data']:
+
                 print('课程内容：' + j['resourceName'])
                 if (j['finished'] == 1):
                     print('已完成')
@@ -124,11 +136,21 @@ class WeibanAPI():
                         'userId': self.userId,
                         'token': self.token
                     }
+                    # print(self.tenantCode[0])
+                    # print(param)
                     temp = time.time()
-                    res = requests.post(url='https://weiban.mycourse.cn/pharos/usercourse/study.do?{}'.format(temp),
-                                        data=param)
-                    # print(res)
-                    # print(res.json())
+                    # print(f'https://weiban.mycourse.cn/pharos/usercourse/study.do?timestamp={int(time.time())}')
+                    res = requests.post(url=f'https://weiban.mycourse.cn/pharos/usercourse/study.do?timestamp={int(time.time())}',data=param,headers=self.header)
+                    # print(res.content)
+                    # print(j)
+                    data={
+                        'courseId':j['resourceId'],
+                        'userProjectId': self.projectID,
+                        'tenantCode': self.tenantCode,
+                        'userId': self.userId,
+                    }
+                    res=requests.post(url=getCourseUrls+f"?timestamp={int(temp)}",data=data)
+                    # print(res.request.body)
                     wait_time = self.getRandomtime()
                     print('等待{}秒'.format(wait_time))
                     time.sleep(wait_time)
@@ -140,8 +162,13 @@ class WeibanAPI():
                     }
                     r = requests.post(url='https://weiban.mycourse.cn/pharos/usercourse/finish.do', params=params,
                                       headers=__ua_headers)
-                    # print(r.url)
-                    # print(r.headers)
+                    # print(str(r.content))
+                    if str(r.content):
+                        if 'jQuery0000' in str(r.content):
+                            print('完成')
+                            # print(r.headers)
+                        else:
+                            print('失败')
 
 
 
