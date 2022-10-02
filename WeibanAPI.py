@@ -1,10 +1,60 @@
 # import os
+import json
 import webbrowser
 import requests
 import time
 import http.cookiejar
 import datetime
 import random
+import pymysql
+from tqdm import tqdm
+
+db = pymysql.connect(host='106.75.139.59',
+                     user='root',
+                     password='Hjw20020315',
+                     database='weibanques',
+                     charset='utf8')
+
+cursor = db.cursor()
+
+def search(id):
+    sql=f"select  * from questions where id='{id}'"
+    cursor.execute(sql)
+    res=cursor.fetchall()
+    # print(res)
+    if res is not None:
+        if res[0][4]==None:
+            print(res)
+            return "找不到"
+        if res[0][2]=="单选题":
+            return res[0][4]
+        else:
+            res=res[0][4].split('&')
+            return ",".join(res)
+
+
+    # 提交数据
+
+
+def insert(id, title, typeLabel, question):
+    insert_emp_sql = f"insert ignore into weibanques.questions (`id`,`title`,`typeLabel`,`question`) values ('{id}','{title}','{typeLabel}','{question}');"
+    # 执行语句
+    # print(insert_emp_sql)
+    rs = cursor.execute(insert_emp_sql)
+
+    # 提交数据
+    r = db.commit()
+    if rs != 0:
+        return True
+
+
+def update(id, answer):
+    sql = f'update  weibanques.questions set correct="{answer}" where id="{id}"'
+    rs = cursor.execute(sql)
+    r = db.commit()
+    # print(rs)
+    if rs != 0:
+        return True
 getQRCodeURL = 'https://weiban.mycourse.cn/pharos/login/genBarCodeImageAndCacheUuid.do'  # 获取登录二维码
 loginStatusURL = 'https://weiban.mycourse.cn/pharos/login/barCodeWebAutoLogin.do'  # 刷新登录状态
 getuserInfo = 'https://weiban.mycourse.cn/pharos/my/getInfo.do'  # 获取用户信息
@@ -30,6 +80,9 @@ class WeibanAPI():
         self.token=token
     def getRandomtime(self):
         delayTime=random.randint(10,20)
+        return delayTime
+    def getMiniTime(self):
+        delayTime=random.randint(2,10)
         return delayTime
     def qrLogin(self):
         try:
@@ -62,6 +115,13 @@ class WeibanAPI():
         r = requests.post(url=getuserInfo+f"?timestamp={int(time.time())}", data=param,headers=self.header)
         print(r)
         info = r.json()['data']
+        data={
+            "mesg":'ok',
+            'info':info
+        }
+
+
+
 
         print('{:=^15}\n姓名：{}\n学院：{}\n专业：{}'.format("学生信息",info['realName'], info['orgName'], info['specialtyName']))
 
@@ -169,6 +229,167 @@ class WeibanAPI():
                             # print(r.headers)
                         else:
                             print('失败')
+    def Dopaper(self):
+        url='https://weiban.mycourse.cn/pharos/exam/listPlan.do'
+        data={
+            'userProjectId':self.projectID,
+            'tenantCode':self.tenantCode,
+            'userId':self.userId
+        }
+        re=requests.post(url=url,data=data,headers=self.header)
+        # print(re.json())
+        self.examPlanId=re.json()['data'][0]['examPlanId']
+        self.userExamPlanId=re.json()['data'][0]['id']
 
+    def preparePaper(self):
+        url='https://weiban.mycourse.cn/pharos/exam/preparePaper.do'
+        data={
+            'userExamPlanId':self.userExamPlanId,
+            'tenantCode':self.tenantCode,
+            'userId':self.userId
+        }
+        re=requests.post(url=url,data=data,headers=self.header)
+        # print(re.json())
+
+    def getQuestionList(self):
+        url='https://weiban.mycourse.cn/pharos/exam/startPaper.do'
+        data={
+            'userExamPlanId':self.userExamPlanId,
+            'tenantCode':self.tenantCode,
+            'userId':self.userId
+        }
+        res=requests.post(url=url,data=data,headers=self.header)
+        self.quesList=res.json()['data']['questionList']
+    def historyList(self):
+        url='https://weiban.mycourse.cn/pharos/exam/listHistory.do'
+        data={
+            'examPlanId':self.examPlanId,
+            'isRetake': 2,
+            'userId':self.userId,
+            'tenantCode':self.tenantCode
+        }
+        res=requests.post(data=data,url=url,headers=self.header)
+        self.userExamId = res.json()['data'][0]['id']
+        print(self.userExamId)
+    def getAnswer(self):
+        url='https://weiban.mycourse.cn/pharos/exam/reviewPaper.do'
+        data={
+            'userExamId':self.userExamId,
+            'isRetake':2,
+            'tenantCode':self.tenantCode,
+            'userId':self.userId
+        }
+        res = requests.post(data=data, url=url, headers=self.header)
+        self.anwerlist=res.json()['data']['questions']
+    def recordAnswe(self,questionId,answerIds):
+        times=self.getMiniTime()
+        time.sleep(times)
+        url='https://weiban.mycourse.cn/pharos/exam/recordQuestion.do'
+        data={
+            'userExamPlanId':self.userExamPlanId,
+            'questionId':questionId,
+            'useTime':12,
+            'answerIds':answerIds,
+            'tenantCode':self.tenantCode,
+            'userId':self.userId,
+            'examPlanId':self.examPlanId
+        }
+        res=requests.post(url=url,data=data,headers=self.header)
+        # print(res.json())
+    def submit(self):
+        url='https://weiban.mycourse.cn/pharos/exam/submitPaper.do'
+        data={
+            'userExamPlanId':self.userExamPlanId,
+            'tenantCode':self.tenantCode,
+            'userId':self.userId
+        }
+        res=requests.post(url=url,data=data,headers=self.header)
+        return res.json()
+    def do_paper(self):
+        self.Dopaper()
+        self.preparePaper()
+        self.getQuestionList()
+        questionList=self.quesList
+        count=0
+        for question in tqdm(questionList):
+
+            id = question['id']
+            res=search(id)
+            # if res=="找不到":
+            #     count+=1
+            # print(res)
+            self.recordAnswe(id,res)
+        res=self.submit()
+        return res
+        # print(res)
+    def get_ques(self):
+        self.Dopaper()
+        self.preparePaper()
+        self.getQuestionList()
+        questionList = self.quesList
+        # print(questionList)
+        print('抓取题库中~')
+        newAdd = 0
+        for question in tqdm(questionList):
+            # print(question)
+            id = question['id']
+            title = question['title']
+            typeLabel = question['typeLabel']
+
+            optionList = question['optionList']
+            questions = {
+                'optionList': optionList
+            }
+            questions = json.dumps(questions)
+            # print(id,title,typeLabel,questions)
+            res = insert(id=id, title=title, typeLabel=typeLabel, question=questions)
+            if res:
+                newAdd += 1
+        print(f'抓取完毕.新增{newAdd}题')
+        print("开始核对答案")
+        self.historyList()
+        self.getAnswer()
+        # print(wb.anwerlist[0])
+        answerList = self.anwerlist
+
+        newAnser = 0
+        # print(answerList[0])
+        for answer in tqdm(answerList):
+            id = answer['id']
+            typeLabel = answer['typeLabel']
+            if (typeLabel == '单选题'):
+                for a in answer['optionList']:
+
+                    if a['isCorrect'] == 1:
+                        # print(a['id'])
+
+                        an = update(id, a['id'])
+                        if an:
+                            # print(an)
+                            newAnser += 1
+            else:
+
+                # print("选项", answer)
+                ans = []
+                for b in answer['optionList']:
+
+                    # print("答案",b)
+
+                    if b['isCorrect'] == 1:
+                        # print(a['id'])
+                        ans.append(b['id'])
+                        # print(an)
+                # mult_ans={ans}
+                # mult_ans=pymysql.escape_string(mult_ans)
+                # print(mult_ans)
+
+                ans = "&".join(ans)
+
+                # print(ans)
+                bn = update(id=id, answer=ans)
+                if bn:
+                    newAdd += 1
+
+        print(f"添加答案完毕,新增{newAdd}题")
 
 

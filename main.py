@@ -4,12 +4,13 @@ import webbrowser
 from rich.console import Console
 from rich.console import Console
 console = Console()
+
 def run():
 
     console.print('{:=^45}'.format('安全微课逃课助手v3.0'))
-    console.print("程序仅供学习，不得用作商业用途")
+    console.print("程序仅供学习，完全免费")
     console.print('多学一些安全知识也不是没有用\n')
-    console.print('考试功能未做，可以看GitHub上面的更新时间')
+    console.print('考试功能已做',style="red on white")
     console.print("1.5s后自动打开浏览器，需要你 [bold cyan]手动登录 [bold cyan]安全微课")
     console.print('2.使用学号 [bold cyan]登录 [bold cyan]， [bold red]密码默认是学号后六位 [bold red]')
     console.print("3.登录以后输入按F12或打开检查，在控制台输入这条命令")
@@ -46,6 +47,23 @@ def run():
     wb.getCourse()
     wb.finshiall()
     print("全部刷完了")
+    console.log("[bold cyan]开始考试[bold cyan]")
+    console.log("不敢保证百分百可以过考试",style="red on white")
+    count=0
+    while count<2:
+        count += 1
+        console.log(f"第{count}次尝试")
+        res=wb.do_paper()
+        wb.get_ques()
+        res=res['data']['score']
+        if res>=90:
+            console.log(f"本次分数为：[bold green]{res}[bold green]")
+            console.log(f"成绩合格")
+            break
+        else:
+            console.log(f"本次分数为：[bold red]{res}[bold red]")
+            console.log(f"成绩不合格")
+
 if __name__ == '__main__':
     try:
         run()
