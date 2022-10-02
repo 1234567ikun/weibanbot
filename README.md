@@ -51,7 +51,4 @@
 
 用爱发电不易，求支持。
 
-<img src="https://hexo-1304618721.cos.ap-chengdu.myqcloud.com/images/post/Screenshot_2022-10-02-20-40-23-174_com.tencent.mm.jpg" alt="Screenshot_2022-10-02-20-40-23-174_com.tencent.mm" style="zoom:50%;" />
-
-
-
+<img src="https://hexo-1304618721.cos.ap-chengdu.myqcloud.com/images/post/FF04F83FA87949F827FF342A72636D7B.png" alt="img" style="zoom:50%;" />
