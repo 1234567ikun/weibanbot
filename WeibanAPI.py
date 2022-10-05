@@ -8,7 +8,7 @@ import datetime
 import random
 import pymysql
 from tqdm import tqdm
-
+#自己的题库地址
 db = pymysql.connect(host='你的题库地址',
                      user='用户名',
                      password='账号',
