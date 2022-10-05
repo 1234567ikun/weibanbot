@@ -9,10 +9,10 @@ import random
 import pymysql
 from tqdm import tqdm
 
-db = pymysql.connect(host='106.75.139.59',
-                     user='root',
-                     password='Hjw20020315',
-                     database='weibanques',
+db = pymysql.connect(host='你的题库地址',
+                     user='用户名',
+                     password='账号',
+                     database='密码',
                      charset='utf8')
 
 cursor = db.cursor()
@@ -120,7 +120,7 @@ class WeibanAPI():
             'info':info
         }
 
-
+        
 
 
         print('{:=^15}\n姓名：{}\n学院：{}\n专业：{}'.format("学生信息",info['realName'], info['orgName'], info['specialtyName']))
