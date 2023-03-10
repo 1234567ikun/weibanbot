@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # 安全微伴小助手v.3.2.1
 
 ##  🔔**特别声明**
@@ -120,4 +119,4 @@
 用爱发电不易，求支持，求支持。
 
 <img src="https://hexo-1304618721.cos.ap-chengdu.myqcloud.com/images/post/FF04F83FA87949F827FF342A72636D7B.png" alt="img" style="zoom:50%;" />
->>>>>>> origin/main
+
