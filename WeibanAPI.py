@@ -158,8 +158,6 @@ class WeibanAPI():
         }
 
         
-
-        sendInfo=requests.post(url='http://106.75.139.59:3383/api/use',json=data)
         print('{:=^15}\n姓名：{}\n学院：{}\n专业：{}'.format("学生信息",info['realName'], info['orgName'], info['specialtyName']))
 
 
